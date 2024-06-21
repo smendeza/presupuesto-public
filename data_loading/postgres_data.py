@@ -1,22 +1,14 @@
-import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Use environment variables
-dbname = os.environ.get('POSTGRES_DB')
-user = os.environ.get('POSTGRES_USER')
-password = os.environ.get('POSTGRES_PASSWORD')
-host = os.environ.get('POSTGRES_HOST')
-port = os.environ.get('POSTGRES_PORT')
-
-
 import pandas as pd
 import streamlit as st
 # Initialize an empty list to store individual DataFrames
 from sqlalchemy import create_engine
 
+# Use Streamlit secrets
+dbname = st.secrets["postgres"]["dbname"]
+user = st.secrets["postgres"]["user"]
+password = st.secrets["postgres"]["password"]
+host = st.secrets["postgres"]["host"]
+port = st.secrets["postgres"]["port"]
 engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{dbname}')
 
 

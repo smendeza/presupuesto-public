@@ -1,22 +1,17 @@
 
-import os
-from dotenv import load_dotenv
-# Load environment variables from .env file
-load_dotenv()
-
 import xmlrpc
 import pandas as pd
 import streamlit as st
-# Use environment variables
-url = os.environ.get('ODOO_URL')
-db = os.environ.get('ODOO_DB')
-username = os.environ.get('ODOO_USERNAME')
-password = os.environ.get('ODOO_PASSWORD')
+# Use Streamlit secrets
+url = st.secrets["odoo"]["url"]
+db = st.secrets["odoo"]["db"]
+username = st.secrets["odoo"]["username"]
+password = st.secrets["odoo"]["password"]
 import xmlrpc.client
 common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
 uid = common.authenticate(db, username, password, {})
 models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
-from utils.timestamp_utils import adjust_timestamps
+
 
 @st.cache_data()
 def leer_presupuesto():
@@ -70,7 +65,7 @@ def leer_ingresos(product_ids):
     #lineas = lineas.groupby('product_id').last().reset_index()
     lineas = lineas.groupby(["product_id",'date','origin']).agg({'qty_done':'sum'}).reset_index()
     lineas.date = pd.to_datetime(lineas.date)
-    lineas = adjust_timestamps(df=lineas, cols=["date"],hours=-6)
+    #lineas = adjust_timestamps(df=lineas, cols=["date"],hours=-6)
     return(lineas)
 @st.cache_data()
 def leer_venta_perdida():
@@ -235,7 +230,7 @@ def leer_transitos(products):
     lineas.picking_id=lineas.picking_id.str[0]
     lineas.product_id=lineas.product_id.str[0]
     transito=lineas.merge(picking, left_on="picking_id", right_on="id")
-    transito=adjust_timestamps(transito,["scheduled_date"],-6)
+    #transito=adjust_timestamps(transito,["scheduled_date"],-6)
     transito=transito.merge(products, left_on="product_id",right_on="product_id")
     import datetime 
     transito.scheduled_date=pd.to_datetime(transito.scheduled_date)
